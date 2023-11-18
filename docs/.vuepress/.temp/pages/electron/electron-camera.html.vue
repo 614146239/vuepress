@@ -1,0 +1,676 @@
+<template><div><h1 id="electron-camera-案例" tabindex="-1"><a class="header-anchor" href="#electron-camera-案例" aria-hidden="true">#</a> electron-camera 案例</h1>
+<h2 id="electron-搭建" tabindex="-1"><a class="header-anchor" href="#electron-搭建" aria-hidden="true">#</a> <a href="https://www.electronjs.org/zh/docs/latest/" target="_blank" rel="noopener noreferrer">electron<ExternalLinkIcon/></a> 搭建</h2>
+<p>使用<a href="https://cn.electron-vite.org/guide/" target="_blank" rel="noopener noreferrer">electron-vite<ExternalLinkIcon/></a>搭建,自行查看文档</p>
+<h2 id="安装依赖" tabindex="-1"><a class="header-anchor" href="#安装依赖" aria-hidden="true">#</a> 安装依赖</h2>
+<p>Electron +Vue3+pinia +TypeScript+elementPlus</p>
+<p>该代码学习时所写，并不完善，如有误导，敬请谅解</p>
+<h2 id="创建窗口" tabindex="-1"><a class="header-anchor" href="#创建窗口" aria-hidden="true">#</a> 创建窗口</h2>
+<ul>
+<li>创建一个窗口类，分为主窗口，和其余窗口类</li>
+<li>默认窗口属性位窗口基础配置，可以根据自己项目自行更改</li>
+<li>加载html,加载vue单页面只能使用hash模式</li>
+</ul>
+<div class="language-javascript line-numbers-mode" data-ext="js"><pre v-pre class="language-javascript"><code> <span class="token keyword">if</span> <span class="token punctuation">(</span>windowConfig<span class="token punctuation">.</span>path<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      win<span class="token punctuation">.</span><span class="token function">loadURL</span><span class="token punctuation">(</span>process<span class="token punctuation">.</span>env<span class="token punctuation">[</span><span class="token string">'ELECTRON_RENDERER_URL'</span><span class="token punctuation">]</span> <span class="token operator">+</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">#</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>windowConfig<span class="token punctuation">.</span>path<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">?id=</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>win<span class="token punctuation">.</span>id<span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+      win<span class="token punctuation">.</span><span class="token function">loadURL</span><span class="token punctuation">(</span>process<span class="token punctuation">.</span>env<span class="token punctuation">[</span><span class="token string">'ELECTRON_RENDERER_URL'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>根据窗口创建时唯一id确定窗口，进行窗口操作，主要进行窗口销毁聚焦，弹出等</p>
+<p>下面是创建窗口代码不完善可以进行参考</p>
+<div class="language-javascript line-numbers-mode" data-ext="js"><pre v-pre class="language-javascript"><code><span class="token keyword">const</span> <span class="token punctuation">{</span> app<span class="token punctuation">,</span> BrowserWindow <span class="token punctuation">}</span> <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'electron'</span><span class="token punctuation">)</span>
+<span class="token comment">//创建一个窗口宽高为800*600</span>
+<span class="token keyword">const</span> <span class="token function-variable function">createWindow</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> win <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">BrowserWindow</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    <span class="token literal-property property">width</span><span class="token operator">:</span> <span class="token number">800</span><span class="token punctuation">,</span>
+    <span class="token literal-property property">height</span><span class="token operator">:</span> <span class="token number">600</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+  win<span class="token punctuation">.</span><span class="token function">loadFile</span><span class="token punctuation">(</span><span class="token string">'index.html'</span><span class="token punctuation">)</span> <span class="token comment">//加载html</span>
+<span class="token punctuation">}</span>
+
+app<span class="token punctuation">.</span><span class="token function">whenReady</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+  <span class="token function">createWindow</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="多窗口的创建及其封装" tabindex="-1"><a class="header-anchor" href="#多窗口的创建及其封装" aria-hidden="true">#</a> 多窗口的创建及其封装</h2>
+<img src="@source/.vuepress/public/electron-camera/main.jpg" >
+<div class="language-javascript line-numbers-mode" data-ext="js"><pre v-pre class="language-javascript"><code><span class="token keyword">import</span> <span class="token punctuation">{</span>
+  BrowserWindow<span class="token punctuation">,</span>
+  BrowserWindowConstructorOptions<span class="token punctuation">,</span>
+  ipcMain<span class="token punctuation">,</span>
+  nativeImage<span class="token punctuation">,</span>
+  shell
+<span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'electron'</span>
+<span class="token keyword">import</span> <span class="token punctuation">{</span> join <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'path'</span>
+<span class="token comment">// import url from 'url'</span>
+<span class="token keyword">import</span> <span class="token punctuation">{</span> is <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'@electron-toolkit/utils'</span>
+<span class="token comment">// 录制屏幕</span>
+<span class="token keyword">import</span> screenCapturer <span class="token keyword">from</span> <span class="token string">'./desktopCapturer '</span>
+<span class="token comment">//暂未实现，有兴趣自己研究</span>
+<span class="token keyword">interface</span> <span class="token class-name">Config</span> <span class="token punctuation">{</span>
+  id<span class="token operator">?</span><span class="token operator">:</span> string <span class="token operator">|</span> number <span class="token comment">//唯一id</span>
+  path<span class="token operator">?</span><span class="token operator">:</span> string <span class="token comment">// 页面路由URL '/manage?id=123'</span>
+  data<span class="token operator">?</span><span class="token operator">:</span> <span class="token keyword">null</span> <span class="token comment">//数据</span>
+  isMultiWindow<span class="token operator">?</span><span class="token operator">:</span> boolean <span class="token comment">//是否支持多开窗口 (如果为false，当窗体存在，再次创建不会新建一个窗体 只focus显示即可，，如果为true，即使窗体存在，也可以新建一个)</span>
+  isMainWin<span class="token operator">?</span><span class="token operator">:</span> boolean <span class="token comment">//是否主窗口(当为true时会替代当前主窗口)</span>
+  parentId<span class="token operator">?</span><span class="token operator">:</span> string <span class="token comment">//父窗口id  创建父子窗口 -- 子窗口永远显示在父窗口顶部 【父窗口可以操作】</span>
+  modal<span class="token operator">?</span><span class="token operator">:</span> boolean <span class="token comment">//模态窗口 -- 模态窗口是禁用父窗口的子窗口，创建模态窗口必须设置 parent 和 modal 选项 【父窗口不能操作】</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">interface</span> <span class="token class-name">windowArr</span> <span class="token punctuation">{</span>
+  <span class="token literal-property property">id</span><span class="token operator">:</span> string <span class="token operator">|</span> number
+  path<span class="token operator">?</span><span class="token operator">:</span> string
+<span class="token punctuation">}</span>
+<span class="token keyword">class</span> <span class="token class-name">Window</span> <span class="token punctuation">{</span>
+  <span class="token literal-property property">main</span><span class="token operator">:</span> <span class="token keyword">null</span>
+  <span class="token literal-property property">windowArr</span><span class="token operator">:</span> windowArr<span class="token punctuation">[</span><span class="token punctuation">]</span>
+  <span class="token function">constructor</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>main <span class="token operator">=</span> <span class="token keyword">null</span> <span class="token comment">//当前页</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>windowArr <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token comment">//窗口组</span>
+  <span class="token punctuation">}</span>
+  <span class="token function">defaultConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> BrowserWindowConstructorOptions <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span>
+      <span class="token literal-property property">width</span><span class="token operator">:</span> <span class="token number">600</span><span class="token punctuation">,</span>
+      <span class="token literal-property property">height</span><span class="token operator">:</span> <span class="token number">600</span><span class="token punctuation">,</span>
+      <span class="token literal-property property">show</span><span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+      <span class="token literal-property property">autoHideMenuBar</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token comment">//自动隐藏菜单栏</span>
+      <span class="token literal-property property">alwaysOnTop</span><span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span> <span class="token comment">//是否保持在最上层</span>
+      <span class="token literal-property property">skipTaskbar</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token comment">//是否在任务栏中显示窗口</span>
+      <span class="token literal-property property">resizable</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token comment">//窗口是否可以改变尺寸</span>
+      <span class="token literal-property property">titleBarStyle</span><span class="token operator">:</span> <span class="token string">'default'</span><span class="token punctuation">,</span> <span class="token comment">//mac下隐藏导航栏</span>
+      <span class="token literal-property property">maximizable</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+      <span class="token literal-property property">webPreferences</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+        <span class="token literal-property property">preload</span><span class="token operator">:</span> <span class="token function">join</span><span class="token punctuation">(</span>__dirname<span class="token punctuation">,</span> <span class="token string">'../preload/index.js'</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">sandbox</span><span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">webSecurity</span><span class="token operator">:</span> <span class="token boolean">false</span> <span class="token comment">//是否禁用同源策略</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+  <span class="token comment">// 获取窗口</span>
+  <span class="token function">getWindow</span><span class="token punctuation">(</span><span class="token parameter">id</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> BrowserWindow<span class="token punctuation">.</span><span class="token function">fromId</span><span class="token punctuation">(</span>id<span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+  <span class="token comment">// 获取全部窗口</span>
+  <span class="token function">getAllWindows</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> BrowserWindow<span class="token punctuation">.</span><span class="token function">getAllWindows</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token comment">// 创建窗口</span>
+  <span class="token function">createWindows</span><span class="token punctuation">(</span><span class="token parameter"><span class="token literal-property property">options</span><span class="token operator">:</span> BrowserWindowConstructorOptions <span class="token operator">&amp;</span> Config</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token comment">//默认配置与传进来配置合并</span>
+    <span class="token keyword">const</span> windowConfig <span class="token operator">=</span> Object<span class="token punctuation">.</span><span class="token function">assign</span><span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">defaultConfig</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> options<span class="token punctuation">)</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">let</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token keyword">this</span><span class="token punctuation">.</span>windowArr<span class="token punctuation">.</span>length<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">const</span> item <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>windowArr<span class="token punctuation">[</span>i<span class="token punctuation">]</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getWindow</span><span class="token punctuation">(</span>item<span class="token punctuation">.</span>id<span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> item<span class="token punctuation">.</span>path <span class="token operator">===</span> options<span class="token punctuation">.</span>path<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getWindow</span><span class="token punctuation">(</span><span class="token function">Number</span><span class="token punctuation">(</span>item<span class="token punctuation">.</span>id<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">?.</span><span class="token function">focus</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token keyword">return</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">const</span> win <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">BrowserWindow</span><span class="token punctuation">(</span>windowConfig<span class="token punctuation">)</span>
+    <span class="token keyword">this</span><span class="token punctuation">.</span>windowArr<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+      <span class="token literal-property property">path</span><span class="token operator">:</span> windowConfig<span class="token punctuation">.</span>path<span class="token punctuation">,</span>
+      <span class="token literal-property property">id</span><span class="token operator">:</span> win<span class="token punctuation">.</span>id
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+    <span class="token comment">// win.on('close', () => win.setOpacity(0))</span>
+    <span class="token comment">// 打开网址（加载页面）</span>
+    <span class="token comment">// HMR 用于基于electron cli 的渲染器。</span>
+    <span class="token comment">// 只能用hash模式</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>is<span class="token punctuation">.</span>dev <span class="token operator">&amp;&amp;</span> process<span class="token punctuation">.</span>env<span class="token punctuation">[</span><span class="token string">'ELECTRON_RENDERER_URL'</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>windowConfig<span class="token punctuation">.</span>path<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        win<span class="token punctuation">.</span><span class="token function">loadURL</span><span class="token punctuation">(</span>process<span class="token punctuation">.</span>env<span class="token punctuation">[</span><span class="token string">'ELECTRON_RENDERER_URL'</span><span class="token punctuation">]</span> <span class="token operator">+</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">#</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>windowConfig<span class="token punctuation">.</span>path<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">?id=</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>win<span class="token punctuation">.</span>id<span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span>
+      <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        win<span class="token punctuation">.</span><span class="token function">loadURL</span><span class="token punctuation">(</span>process<span class="token punctuation">.</span>env<span class="token punctuation">[</span><span class="token string">'ELECTRON_RENDERER_URL'</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+      <span class="token comment">// 加载 index.html</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>windowConfig<span class="token punctuation">.</span>path<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        win<span class="token punctuation">.</span><span class="token function">loadFile</span><span class="token punctuation">(</span><span class="token function">join</span><span class="token punctuation">(</span>__dirname<span class="token punctuation">,</span> <span class="token string">'../renderer/index.html'</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+          <span class="token literal-property property">hash</span><span class="token operator">:</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>windowConfig<span class="token punctuation">.</span>path<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">?id=</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>win<span class="token punctuation">.</span>id<span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span>
+      <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        win<span class="token punctuation">.</span><span class="token function">loadFile</span><span class="token punctuation">(</span><span class="token function">join</span><span class="token punctuation">(</span>__dirname<span class="token punctuation">,</span> <span class="token string">'../renderer/index.html'</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    win<span class="token punctuation">.</span><span class="token function">once</span><span class="token punctuation">(</span><span class="token string">'ready-to-show'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+      win<span class="token punctuation">.</span><span class="token function">show</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+    <span class="token comment">// 当窗口被关闭时触发</span>
+    win<span class="token punctuation">.</span><span class="token function">on</span><span class="token punctuation">(</span><span class="token string">'close'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token parameter">event</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>windowConfig<span class="token punctuation">.</span>isMainWin<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">// 阻止默认行为</span>
+        event<span class="token punctuation">.</span><span class="token function">preventDefault</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token comment">// 隐藏窗口</span>
+        win<span class="token punctuation">.</span><span class="token function">hide</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+      <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    win<span class="token punctuation">.</span>webContents<span class="token punctuation">.</span><span class="token function">setWindowOpenHandler</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">details</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+      shell<span class="token punctuation">.</span><span class="token function">openExternal</span><span class="token punctuation">(</span>details<span class="token punctuation">.</span>url<span class="token punctuation">)</span>
+      <span class="token keyword">return</span> <span class="token punctuation">{</span> <span class="token literal-property property">action</span><span class="token operator">:</span> <span class="token string">'deny'</span> <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token keyword">const</span> icon <span class="token operator">=</span> nativeImage<span class="token punctuation">.</span><span class="token function">createFromPath</span><span class="token punctuation">(</span><span class="token function">join</span><span class="token punctuation">(</span>__dirname<span class="token punctuation">,</span> <span class="token string">'../../resources/windowTray.png'</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    win<span class="token punctuation">.</span><span class="token function">setIcon</span><span class="token punctuation">(</span>icon<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> win
+  <span class="token punctuation">}</span>
+ 
+<span class="token punctuation">}</span>
+
+<span class="token keyword">export</span> <span class="token keyword">default</span> Window
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="多页面加载问题" tabindex="-1"><a class="header-anchor" href="#多页面加载问题" aria-hidden="true">#</a> 多页面加载问题</h2>
+<p>win.loadFile(path.join(__dirname, '../renderer/index.html'), { hash: 'home' })</p>
+<p>Electron 不处理（浏览器）历史并使用同步 URL 加载页面。所以只有 hash 路由 可以工作。
+对于 vue-router，你应该使用 createWebHashHistory 而不是 createWebHistory。
+对于 react-router-dom，你应该使用 HashRouter 而不是 BrowserRouter。
+当使用 hash 路由时，可以通过 BrowserWindow.loadFile 的第二个参数设置 hash 值来加载页面。</p>
+<h2 id="无边框窗口移动" tabindex="-1"><a class="header-anchor" href="#无边框窗口移动" aria-hidden="true">#</a> 无边框窗口移动</h2>
+<ol>
+<li>
+<p>默认情况下, 无框窗口是 non-draggable 的。 应用程序需要指定 <code v-pre>-webkit-app-region: drag</code> 在 CSS 中告诉 Electron 哪个区域是可拖拽的 (像 OS 的标准标题栏), 并且应用程序也可以使用 <code v-pre>-webkit-app-region: no-drag</code> 来排除 draggable region 中的 non-draggable 区域。 请注意, 当前只支持矩形形状。</p>
+<p>要使整个窗口可拖拽, 您可以添加 <code v-pre>-webkit-app-region: drag</code> 作为 <code v-pre>body</code> 的样式:</p>
+ <body style="-webkit-app-region: drag"></body>
+<p>请注意, 如果您已使整个窗口 draggable, 则必须将按钮标记为 non-draggable, 否则用户将无法单击它们:
+button { -webkit-app-region: no-drag; }</p>
+</li>
+</ol>
+<p>2.通过鼠标移动距离进行移动</p>
+<div class="language-javascript line-numbers-mode" data-ext="js"><pre v-pre class="language-javascript"><code><span class="token comment">//  渲染进程代码</span>
+<span class="token keyword">function</span> <span class="token function">drag</span><span class="token punctuation">(</span><span class="token parameter"><span class="token literal-property property">winId</span><span class="token operator">:</span> number</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token comment">//窗口id</span>
+ <span class="token keyword">let</span> dragging <span class="token operator">=</span> <span class="token boolean">false</span>
+ <span class="token keyword">let</span> startCoords <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token literal-property property">x</span><span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token literal-property property">y</span><span class="token operator">:</span> <span class="token number">0</span> <span class="token punctuation">}</span>
+ window<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">'mousedown'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token parameter">event</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+   dragging <span class="token operator">=</span> <span class="token boolean">true</span>
+   startCoords <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token literal-property property">x</span><span class="token operator">:</span> event<span class="token punctuation">.</span>screenX<span class="token punctuation">,</span> <span class="token literal-property property">y</span><span class="token operator">:</span> event<span class="token punctuation">.</span>screenY <span class="token punctuation">}</span> <span class="token comment">//开始位置</span>
+ <span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+ window<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">'mousemove'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token parameter">event</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+   <span class="token keyword">if</span> <span class="token punctuation">(</span>dragging<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+   <span class="token comment">//计算移动距离</span>
+     <span class="token keyword">const</span> newCoords <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token literal-property property">x</span><span class="token operator">:</span> event<span class="token punctuation">.</span>screenX<span class="token punctuation">,</span> <span class="token literal-property property">y</span><span class="token operator">:</span> event<span class="token punctuation">.</span>screenY <span class="token punctuation">}</span>
+     <span class="token keyword">const</span> move <span class="token operator">=</span> <span class="token punctuation">{</span>
+       <span class="token literal-property property">x</span><span class="token operator">:</span> event<span class="token punctuation">.</span>screenX <span class="token operator">-</span> startCoords<span class="token punctuation">.</span>x<span class="token punctuation">,</span>
+       <span class="token literal-property property">y</span><span class="token operator">:</span> event<span class="token punctuation">.</span>screenY <span class="token operator">-</span> startCoords<span class="token punctuation">.</span>y
+     <span class="token punctuation">}</span>
+  <span class="token comment">//ipc通信 进行位置移动</span>
+     window<span class="token punctuation">.</span>api<span class="token punctuation">.</span><span class="token function">drag</span><span class="token punctuation">(</span>move<span class="token punctuation">,</span> winId<span class="token punctuation">)</span>
+     startCoords <span class="token operator">=</span> newCoords
+   <span class="token punctuation">}</span>
+ <span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+ window<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">'mouseup'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+   dragging <span class="token operator">=</span> <span class="token boolean">false</span>
+ <span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+<span class="token keyword">export</span> <span class="token keyword">default</span> drag
+
+ <span class="token comment">// 拖动  通信进程</span>
+ <span class="token function-variable function">drag</span><span class="token operator">:</span> <span class="token keyword">async</span> <span class="token punctuation">(</span><span class="token parameter"><span class="token literal-property property">opt</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token literal-property property">x</span><span class="token operator">:</span> number<span class="token punctuation">;</span> y<span class="token operator">:</span> number <span class="token punctuation">}</span><span class="token punctuation">,</span> winId</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+   <span class="token keyword">await</span> ipcRenderer<span class="token punctuation">.</span><span class="token function">invoke</span><span class="token punctuation">(</span><span class="token string">'drag'</span><span class="token punctuation">,</span> opt<span class="token punctuation">,</span> winId<span class="token punctuation">)</span>
+ <span class="token punctuation">}</span><span class="token punctuation">,</span>
+
+  <span class="token comment">//无边框 窗口移动 主进程代码</span>
+   ipcMain<span class="token punctuation">.</span><span class="token function">handle</span><span class="token punctuation">(</span><span class="token string">'drag'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token parameter">_<span class="token punctuation">,</span> move<span class="token punctuation">,</span> winId</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+     <span class="token keyword">if</span> <span class="token punctuation">(</span>winId<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+       <span class="token keyword">const</span> win <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">getWindow</span><span class="token punctuation">(</span><span class="token function">Number</span><span class="token punctuation">(</span>winId<span class="token punctuation">)</span><span class="token punctuation">)</span>
+       <span class="token keyword">const</span> winBounds <span class="token operator">=</span> win<span class="token operator">!</span><span class="token punctuation">.</span><span class="token function">getBounds</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+       <span class="token comment">//进行移动</span>
+       win<span class="token operator">?.</span><span class="token function">setBounds</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+         <span class="token literal-property property">x</span><span class="token operator">:</span> winBounds<span class="token punctuation">.</span>x <span class="token operator">+</span> move<span class="token punctuation">.</span>x<span class="token punctuation">,</span>
+         <span class="token literal-property property">y</span><span class="token operator">:</span> winBounds<span class="token punctuation">.</span>y <span class="token operator">+</span> move<span class="token punctuation">.</span>y<span class="token punctuation">,</span>
+         <span class="token literal-property property">width</span><span class="token operator">:</span> winBounds<span class="token punctuation">.</span>width<span class="token punctuation">,</span>
+         <span class="token literal-property property">height</span><span class="token operator">:</span> winBounds<span class="token punctuation">.</span>height
+       <span class="token punctuation">}</span><span class="token punctuation">)</span>
+     <span class="token punctuation">}</span>
+   <span class="token punctuation">}</span><span class="token punctuation">)</span>
+   <span class="token comment">// 使用</span>
+   <span class="token function">onMounted</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+ <span class="token function">drag</span><span class="token punctuation">(</span><span class="token function">Number</span><span class="token punctuation">(</span>route<span class="token punctuation">.</span>query<span class="token punctuation">.</span>id<span class="token punctuation">)</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="屏幕录制" tabindex="-1"><a class="header-anchor" href="#屏幕录制" aria-hidden="true">#</a> 屏幕录制</h2>
+   <img src="@source/.vuepress/public/electron-camera/webcam.jpg" >
+<ol>
+<li>获取设备</li>
+</ol>
+<div class="language-javascript line-numbers-mode" data-ext="js"><pre v-pre class="language-javascript"><code>
+ <span class="token keyword">async</span> <span class="token function">getUserMedia</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">await</span> navigator<span class="token punctuation">.</span>mediaDevices
+      <span class="token punctuation">.</span><span class="token function">enumerateDevices</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+      <span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">devices</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+        <span class="token comment">// 遍历设备列表</span>
+        devices<span class="token punctuation">.</span><span class="token function">forEach</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">device</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+          <span class="token comment">// 如果设备类型是视频输入设备，则输出设备信息</span>
+          <span class="token keyword">if</span> <span class="token punctuation">(</span>device<span class="token punctuation">.</span>kind <span class="token operator">===</span> <span class="token string">'videoinput'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">this</span><span class="token punctuation">.</span>cameraArr<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+              <span class="token literal-property property">label</span><span class="token operator">:</span> device<span class="token punctuation">.</span>label<span class="token punctuation">,</span>
+              <span class="token literal-property property">deviceId</span><span class="token operator">:</span> device<span class="token punctuation">.</span>deviceId
+            <span class="token punctuation">}</span><span class="token punctuation">)</span>
+          <span class="token punctuation">}</span>
+          <span class="token keyword">if</span> <span class="token punctuation">(</span>device<span class="token punctuation">.</span>kind <span class="token operator">===</span> <span class="token string">'audioinput'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">this</span><span class="token punctuation">.</span>audioArr<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token literal-property property">label</span><span class="token operator">:</span> device<span class="token punctuation">.</span>label<span class="token punctuation">,</span> <span class="token literal-property property">deviceId</span><span class="token operator">:</span> device<span class="token punctuation">.</span>deviceId <span class="token punctuation">}</span><span class="token punctuation">)</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span>
+      <span class="token punctuation">}</span><span class="token punctuation">)</span>
+      <span class="token punctuation">.</span><span class="token function">catch</span><span class="token punctuation">(</span><span class="token keyword">function</span> <span class="token punctuation">(</span><span class="token parameter">err</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        console<span class="token punctuation">.</span><span class="token function">error</span><span class="token punctuation">(</span><span class="token string">'获取设备列表失败:'</span><span class="token punctuation">,</span> err<span class="token punctuation">)</span>
+        <span class="token function">ElNotification</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+          <span class="token literal-property property">title</span><span class="token operator">:</span> <span class="token string">'获取设备列表失败'</span><span class="token punctuation">,</span>
+          <span class="token literal-property property">message</span><span class="token operator">:</span> err<span class="token punctuation">,</span>
+          <span class="token literal-property property">type</span><span class="token operator">:</span> <span class="token string">'error'</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span>
+      <span class="token punctuation">}</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>2.录制屏幕</p>
+<p>屏幕录制和浏览器略微不一样,首先在主进程获取窗口列表进行录制窗口选择</p>
+<div class="language-javascript line-numbers-mode" data-ext="js"><pre v-pre class="language-javascript"><code>desktopCapturer
+      <span class="token punctuation">.</span><span class="token function">getSources</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+        <span class="token literal-property property">types</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'screen'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        <span class="token comment">// thumbnailSize: {</span>
+        <span class="token comment">//   height: 300, // 窗口或屏幕的截图快照高度</span>
+        <span class="token comment">//   width: 300 // 窗口或屏幕的截图快照宽度</span>
+        <span class="token comment">// },</span>
+        <span class="token literal-property property">fetchWindowIcons</span><span class="token operator">:</span> <span class="token boolean">true</span> <span class="token comment">// 如果视频源是窗口且有图标，则设置该值可以捕获到的窗口图标</span>
+      <span class="token punctuation">}</span><span class="token punctuation">)</span>
+      <span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span><span class="token keyword">async</span> <span class="token punctuation">(</span><span class="token parameter">sources</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+     <span class="token comment">// souces 为全部窗口列表，第一位为屏幕 当前录制为屏幕</span>
+        source <span class="token operator">=</span> sources<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span>
+        <span class="token comment">// mainWindow.webContents.send('screenCapturer', source.id)</span>
+        <span class="token keyword">return</span> source<span class="token punctuation">.</span>id
+      <span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><ol>
+<li>之后在js通过<code v-pre>navigator.mediaDevices.getUserMedia</code>(constraints as any)获取屏幕流</li>
+</ol>
+<div class="language-javascript line-numbers-mode" data-ext="js"><pre v-pre class="language-javascript"><code> <span class="token keyword">const</span> constraints <span class="token operator">=</span> <span class="token punctuation">{</span>
+        <span class="token literal-property property">audio</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token literal-property property">mandatory</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+            <span class="token comment">// 无需指定mediaSourceId就可以录音了，录得是系统音频</span>
+            <span class="token literal-property property">chromeMediaSource</span><span class="token operator">:</span> <span class="token string">'desktop'</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token literal-property property">video</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+          <span class="token literal-property property">mandatory</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+            <span class="token literal-property property">chromeMediaSource</span><span class="token operator">:</span> <span class="token string">'desktop'</span><span class="token punctuation">,</span>
+            <span class="token literal-property property">chromeMediaSourceId</span><span class="token operator">:</span> sourceId<span class="token punctuation">,</span>
+            <span class="token literal-property property">width</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token literal-property property">ideal</span><span class="token operator">:</span> <span class="token number">1920</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+            <span class="token literal-property property">height</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token literal-property property">ideal</span><span class="token operator">:</span> <span class="token number">1080</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+            <span class="token literal-property property">codec</span><span class="token operator">:</span> <span class="token string">'vp9'</span><span class="token punctuation">,</span>
+            <span class="token comment">// 帧率</span>
+            <span class="token literal-property property">maxFrameRate</span><span class="token operator">:</span> <span class="token number">60</span>
+          <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span>
+       <span class="token comment">// 指定屏幕id只能使用getUserMedia</span>
+  vidioStream<span class="token punctuation">.</span>value <span class="token operator">=</span> <span class="token keyword">await</span> navigator<span class="token punctuation">.</span>mediaDevices<span class="token punctuation">.</span><span class="token function">getUserMedia</span><span class="token punctuation">(</span>constraints <span class="token keyword">as</span> any<span class="token punctuation">)</span>
+<span class="token comment">//constraints中属性不能通过getdisplayMedia获取</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>4.音频轨道需要额外获取</p>
+<div class="language-javascript line-numbers-mode" data-ext="js"><pre v-pre class="language-javascript"><code> audioStream <span class="token operator">=</span> <span class="token keyword">await</span> navigator<span class="token punctuation">.</span>mediaDevices<span class="token punctuation">.</span><span class="token function">getUserMedia</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+      <span class="token literal-property property">audio</span><span class="token operator">:</span> <span class="token boolean">true</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><p>5.合并视频轨道与音频轨道</p>
+<div class="language-javascript line-numbers-mode" data-ext="js"><pre v-pre class="language-javascript"><code>    <span class="token comment">// 同时通过MediaStream合并视频流与音频流</span>
+      <span class="token keyword">const</span> stream <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MediaStream</span><span class="token punctuation">(</span><span class="token punctuation">[</span>
+        screenStream<span class="token punctuation">.</span><span class="token function">getVideoTracks</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+        audioStream<span class="token punctuation">.</span><span class="token function">getAudioTracks</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span>
+      <span class="token punctuation">]</span><span class="token punctuation">)</span>
+    <span class="token comment">//   </span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><ol start="6">
+<li></li>
+</ol>
+<ul>
+<li>
+<p>通过<a href="https://developer.mozilla.org/zh-CN/docs/Web/API/MediaRecorder" target="_blank" rel="noopener noreferrer">MediaRecorder<ExternalLinkIcon/></a>开始录制</p>
+</li>
+<li>
+<p>录制视频需要MediaRecorder(stream)
+闲置中，录制中,暂停 inactive, recording, or paused</p>
+</li>
+<li>
+<p>录制中push进数组中通过blob下载
+recorder.addEventListener('dataavailable', (e) =&gt; {
+chunks.push(e.data)
+})</p>
+</li>
+</ul>
+<div class="language-javascript line-numbers-mode" data-ext="js"><pre v-pre class="language-javascript"><code>recorder<span class="token punctuation">.</span>value <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MediaRecorder</span><span class="token punctuation">(</span>mediaStream<span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token literal-property property">mimeType</span><span class="token operator">:</span> <span class="token string">'video/webm; codecs=vp9'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div></div></div><p>7.结束录制并保存</p>
+<div class="language-javascript line-numbers-mode" data-ext="js"><pre v-pre class="language-javascript"><code><span class="token keyword">const</span> endRecorder <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> <span class="token parameter"><span class="token keyword">void</span></span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>recorder<span class="token punctuation">.</span>value <span class="token operator">&amp;&amp;</span> recorder<span class="token punctuation">.</span>value<span class="token punctuation">.</span>state <span class="token operator">==</span> <span class="token string">'recording'</span><span class="token punctuation">)</span> <span class="token operator">||</span> recorder<span class="token punctuation">.</span>value<span class="token punctuation">.</span>state <span class="token operator">==</span> <span class="token string">'paused'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    recorder<span class="token punctuation">.</span>value<span class="token punctuation">.</span><span class="token function">stop</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token comment">// 停止录制声音</span>
+    <span class="token function">stopAudio</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token function">stopRecodTime</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    recorder<span class="token punctuation">.</span>value<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">'stop'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+      <span class="token keyword">const</span> blob <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Blob</span><span class="token punctuation">(</span>chunks<span class="token punctuation">.</span>value<span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token literal-property property">type</span><span class="token operator">:</span> <span class="token string">'video/mp4'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
+      <span class="token keyword">const</span> url <span class="token operator">=</span> <span class="token constant">URL</span><span class="token punctuation">.</span><span class="token function">createObjectURL</span><span class="token punctuation">(</span>blob<span class="token punctuation">)</span>
+      <span class="token keyword">const</span> a <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">createElement</span><span class="token punctuation">(</span><span class="token string">'a'</span><span class="token punctuation">)</span>
+      a<span class="token punctuation">.</span>href <span class="token operator">=</span> url
+      <span class="token keyword">const</span> currentTime <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+      a<span class="token punctuation">.</span>download <span class="token operator">=</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>currentTime<span class="token punctuation">.</span><span class="token function">toLocaleString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">.mp4</span><span class="token template-punctuation string">`</span></span>
+      a<span class="token punctuation">.</span><span class="token function">click</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    recorder<span class="token punctuation">.</span>value <span class="token operator">=</span> <span class="token keyword">null</span>
+    chunks<span class="token punctuation">.</span>value <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="electron摄像头调用" tabindex="-1"><a class="header-anchor" href="#electron摄像头调用" aria-hidden="true">#</a> electron摄像头调用</h2>
+   <img src="@source/.vuepress/public/electron-camera/camera.jpg" >
+<div class="language-javascript line-numbers-mode" data-ext="js"><pre v-pre class="language-javascript"><code><span class="token operator">&lt;</span>video ref<span class="token operator">=</span><span class="token string">"videoRef"</span> autoplay muted<span class="token operator">=</span><span class="token string">"true"</span> <span class="token operator">:</span><span class="token keyword">class</span><span class="token operator">=</span><span class="token string">"{ reverse: config.reverse }"</span><span class="token operator">></span><span class="token operator">&lt;</span><span class="token operator">/</span>video<span class="token operator">></span>
+<span class="token comment">// 获取摄像头stream流</span>
+ navigator<span class="token punctuation">.</span>mediaDevices<span class="token punctuation">.</span><span class="token function">getUserMedia</span><span class="token punctuation">(</span><span class="token punctuation">{</span> <span class="token literal-property property">video</span><span class="token operator">:</span> constraints<span class="token punctuation">.</span>video <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">stream</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    video<span class="token punctuation">.</span>srcObject <span class="token operator">=</span> stream  <span class="token comment">//把stream流赋值给video进行展示</span>
+    tracks<span class="token punctuation">.</span>value <span class="token operator">=</span> stream<span class="token punctuation">.</span><span class="token function">getTracks</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="摄像头身体分割替换人体背景" tabindex="-1"><a class="header-anchor" href="#摄像头身体分割替换人体背景" aria-hidden="true">#</a> 摄像头身体分割替换人体背景</h2>
+   <img src="@source/.vuepress/public/electron-camera/bg.jpg" >
+<p>[tensorflow身体分割]（https://tensorflow.google.cn/js/models?hl=zh-cn）</p>
+<div class="language-javascript line-numbers-mode" data-ext="js"><pre v-pre class="language-javascript"><code>
+<span class="token keyword">import</span> <span class="token operator">*</span> <span class="token keyword">as</span> bodySegmentation <span class="token keyword">from</span> <span class="token string">'@tensorflow-models/body-segmentation'</span>
+<span class="token keyword">import</span> <span class="token string">'@mediapipe/selfie_segmentation'</span>
+<span class="token comment">//  引入背景分割</span>
+   <span class="token operator">&lt;</span>canvas ref<span class="token operator">=</span><span class="token string">"canvasSegmentation"</span> <span class="token keyword">class</span><span class="token operator">=</span><span class="token string">"none"</span> <span class="token operator">:</span><span class="token keyword">class</span><span class="token operator">=</span><span class="token string">"{ reverse: config.reverse }"</span><span class="token operator">></span><span class="token operator">&lt;</span><span class="token operator">/</span>canvas<span class="token operator">></span>
+<span class="token comment">// 获取身体位置</span>
+ <span class="token keyword">const</span> bodyModel <span class="token operator">=</span> bodySegmentation<span class="token punctuation">.</span>SupportedModels<span class="token punctuation">.</span>MediaPipeSelfieSegmentation
+ <span class="token keyword">const</span> segmenter <span class="token operator">=</span> <span class="token keyword">await</span> bodySegmentation<span class="token punctuation">.</span><span class="token function">createSegmenter</span><span class="token punctuation">(</span>bodyModel<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+   <span class="token literal-property property">runtime</span><span class="token operator">:</span> <span class="token string">'mediapipe'</span><span class="token punctuation">,</span>
+   <span class="token literal-property property">modelType</span><span class="token operator">:</span> <span class="token string">'landscape'</span><span class="token punctuation">,</span> <span class="token comment">// 'general', 'landscape</span>
+   <span class="token literal-property property">solutionPath</span><span class="token operator">:</span> <span class="token string">'../../src/assets/model/@mediapipe/selfie_segmentation'</span>
+   <span class="token comment">// solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation'</span>
+ <span class="token punctuation">}</span><span class="token punctuation">)</span>
+ <span class="token comment">// 替换背景</span>
+   <span class="token keyword">const</span> foregroundColor <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token literal-property property">r</span><span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token literal-property property">g</span><span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token literal-property property">b</span><span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token literal-property property">a</span><span class="token operator">:</span> <span class="token number">0</span> <span class="token punctuation">}</span>
+ <span class="token keyword">const</span> backgroundColor <span class="token operator">=</span> <span class="token punctuation">{</span> <span class="token literal-property property">r</span><span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token literal-property property">g</span><span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token literal-property property">b</span><span class="token operator">:</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token literal-property property">a</span><span class="token operator">:</span> <span class="token number">255</span> <span class="token punctuation">}</span>
+
+ <span class="token keyword">let</span> backdropImg <span class="token operator">=</span> <span class="token keyword">await</span> <span class="token function">loadImage</span><span class="token punctuation">(</span>backgroundCutConfig<span class="token punctuation">.</span>backdropImg<span class="token punctuation">)</span>
+
+ <span class="token keyword">const</span> backgroundReplace <span class="token operator">=</span> <span class="token keyword">async</span> <span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> Promise<span class="token operator">&lt;</span><span class="token keyword">void</span><span class="token operator">></span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+   <span class="token keyword">const</span> people <span class="token operator">=</span> <span class="token keyword">await</span> segmenter<span class="token punctuation">.</span><span class="token function">segmentPeople</span><span class="token punctuation">(</span>video<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+     <span class="token literal-property property">flipHorizontal</span><span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+     <span class="token literal-property property">multiSegmentation</span><span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+     <span class="token literal-property property">segmentBodyParts</span><span class="token operator">:</span> <span class="token boolean">true</span>
+   <span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+   <span class="token keyword">if</span> <span class="token punctuation">(</span>backgroundCutConfig<span class="token punctuation">.</span>bokehOrSwitch<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+     <span class="token keyword">await</span> bodySegmentation<span class="token punctuation">.</span><span class="token function">drawBokehEffect</span><span class="token punctuation">(</span>
+       canvas2D<span class="token punctuation">,</span>
+       video<span class="token punctuation">,</span>
+       people<span class="token punctuation">,</span>
+       backgroundCutConfig<span class="token punctuation">.</span>foregroundThreshold<span class="token punctuation">,</span>
+       backgroundCutConfig<span class="token punctuation">.</span>backgroundBlurAmount<span class="token punctuation">,</span>
+       backgroundCutConfig<span class="token punctuation">.</span>edgeBlurAmount<span class="token punctuation">,</span>
+       <span class="token boolean">false</span>
+     <span class="token punctuation">)</span>
+   <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+     <span class="token keyword">const</span> backgroundDarkeningMask <span class="token operator">=</span> <span class="token keyword">await</span> bodySegmentation<span class="token punctuation">.</span><span class="token function">toBinaryMask</span><span class="token punctuation">(</span>
+       people<span class="token punctuation">,</span>
+       foregroundColor<span class="token punctuation">,</span>
+       backgroundColor
+     <span class="token punctuation">)</span>
+     <span class="token keyword">await</span> bodySegmentation<span class="token punctuation">.</span><span class="token function">drawMask</span><span class="token punctuation">(</span>
+       canvas2D<span class="token punctuation">,</span>
+       video<span class="token punctuation">,</span>
+       backgroundDarkeningMask<span class="token punctuation">,</span>
+       backgroundCutConfig<span class="token punctuation">.</span>opacity<span class="token punctuation">,</span>
+       backgroundCutConfig<span class="token punctuation">.</span>maskBlurAmount<span class="token punctuation">,</span>
+       <span class="token boolean">false</span>
+     <span class="token punctuation">)</span>
+     <span class="token comment">// 合成</span>
+     ctx<span class="token punctuation">.</span><span class="token function">putImageData</span><span class="token punctuation">(</span>backgroundDarkeningMask<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span>
+     ctx<span class="token punctuation">.</span>globalCompositeOperation <span class="token operator">=</span> <span class="token string">'source-in'</span>
+     <span class="token comment">// // 背景图</span>
+     ctx<span class="token punctuation">.</span><span class="token function">drawImage</span><span class="token punctuation">(</span>backdropImg<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> video<span class="token punctuation">.</span>videoWidth<span class="token punctuation">,</span> video<span class="token punctuation">.</span>videoHeight<span class="token punctuation">)</span>
+     ctx<span class="token punctuation">.</span>globalCompositeOperation <span class="token operator">=</span> <span class="token string">'destination-over'</span>
+
+     <span class="token comment">// // 视频</span>
+     ctx<span class="token punctuation">.</span><span class="token function">drawImage</span><span class="token punctuation">(</span>video<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> video<span class="token punctuation">.</span>videoWidth<span class="token punctuation">,</span> video<span class="token punctuation">.</span>videoHeight<span class="token punctuation">)</span>
+     ctx<span class="token punctuation">.</span>globalCompositeOperation <span class="token operator">=</span> <span class="token string">'source-over'</span>
+   <span class="token punctuation">}</span>
+ <span class="token punctuation">}</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="人脸识别并添加贴图" tabindex="-1"><a class="header-anchor" href="#人脸识别并添加贴图" aria-hidden="true">#</a> 人脸识别并添加贴图</h2>
+   <img src="@source/.vuepress/public/electron-camera/face.jpg" >
+<p>1.<a href="https://github.com/tensorflow/tfjs-models/tree/master/face-landmarks-detection" target="_blank" rel="noopener noreferrer">tensrflow人脸识别<ExternalLinkIcon/></a></p>
+<div class="language-javascript line-numbers-mode" data-ext="js"><pre v-pre class="language-javascript"><code> <span class="token operator">&lt;</span>canvas ref<span class="token operator">=</span><span class="token string">"canvasRef"</span> <span class="token keyword">class</span><span class="token operator">=</span><span class="token string">"threeJs"</span> <span class="token operator">:</span><span class="token keyword">class</span><span class="token operator">=</span><span class="token string">"{ reverse: config.reverse }"</span><span class="token operator">></span><span class="token operator">&lt;</span><span class="token operator">/</span>canvas<span class="token operator">></span>
+<span class="token comment">// 引入three</span>
+<span class="token keyword">import</span> <span class="token punctuation">{</span>
+ AmbientLight<span class="token punctuation">,</span>
+ <span class="token comment">// Box3,</span>
+ BufferGeometry<span class="token punctuation">,</span>
+ DoubleSide<span class="token punctuation">,</span>
+ <span class="token comment">// Euler,</span>
+ Float32BufferAttribute<span class="token punctuation">,</span>
+ LinearFilter<span class="token punctuation">,</span>
+ Mesh<span class="token punctuation">,</span>
+ MeshBasicMaterial<span class="token punctuation">,</span>
+ <span class="token comment">// Object3D,</span>
+ OrthographicCamera<span class="token punctuation">,</span>
+ PlaneGeometry<span class="token punctuation">,</span>
+ PointLight<span class="token punctuation">,</span>
+ <span class="token comment">// Quaternion,</span>
+ SRGBColorSpace<span class="token punctuation">,</span>
+ Scene<span class="token punctuation">,</span>
+ Texture<span class="token punctuation">,</span>
+ TextureLoader<span class="token punctuation">,</span>
+ Uint16BufferAttribute<span class="token punctuation">,</span>
+ <span class="token comment">// Vector3,</span>
+ VideoTexture<span class="token punctuation">,</span>
+ WebGLRenderer
+<span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'three'</span>
+<span class="token comment">// tensorflow 人脸识别</span>
+<span class="token keyword">import</span> <span class="token string">'@mediapipe/face_mesh'</span>
+
+<span class="token keyword">import</span> <span class="token operator">*</span> <span class="token keyword">as</span> tf <span class="token keyword">from</span> <span class="token string">'@tensorflow/tfjs'</span>
+<span class="token keyword">import</span> <span class="token operator">*</span> <span class="token keyword">as</span> faceLandmarksDetection <span class="token keyword">from</span> <span class="token string">'@tensorflow-models/face-landmarks-detection'</span>
+
+<span class="token comment">// 加载模型</span>
+tf<span class="token punctuation">.</span><span class="token function">setBackend</span><span class="token punctuation">(</span><span class="token string">'webgl'</span><span class="token punctuation">)</span>
+ <span class="token comment">// 加载模型</span>
+ <span class="token keyword">const</span> faceMmodel <span class="token operator">=</span> faceLandmarksDetection<span class="token punctuation">.</span>SupportedModels<span class="token punctuation">.</span>MediaPipeFaceMesh
+ <span class="token keyword">const</span> detector <span class="token operator">=</span> <span class="token keyword">await</span> faceLandmarksDetection<span class="token punctuation">.</span><span class="token function">createDetector</span><span class="token punctuation">(</span>faceMmodel<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+   <span class="token comment">//mediapipe参数 vite打包失败</span>
+   <span class="token literal-property property">maxFaces</span><span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token comment">//检测到的最大面部数量</span>
+   <span class="token literal-property property">refineLandmarks</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token comment">//可以完善眼睛和嘴唇周围的地标坐标，并在虹膜周围输出其他地标</span>
+   <span class="token literal-property property">runtime</span><span class="token operator">:</span> <span class="token string">'mediapipe'</span><span class="token punctuation">,</span> <span class="token comment">//tfjs，mediapipe</span>
+   <span class="token literal-property property">solutionPath</span><span class="token operator">:</span> <span class="token string">'https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh'</span>
+   <span class="token comment">// solutionPath: new URL('../../public/face_mesh', import.meta.url).href</span>
+ <span class="token punctuation">}</span><span class="token punctuation">)</span>
+   <span class="token comment">// 获取人脸位置信息</span>
+ <span class="token keyword">const</span> detectFaces <span class="token operator">=</span> <span class="token keyword">async</span> <span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> Promise<span class="token operator">&lt;</span><span class="token keyword">void</span><span class="token operator">></span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+   faces <span class="token operator">=</span> <span class="token keyword">await</span> detector<span class="token punctuation">.</span><span class="token function">estimateFaces</span><span class="token punctuation">(</span>video<span class="token punctuation">,</span> <span class="token punctuation">{</span> <span class="token literal-property property">flipHorizontal</span><span class="token operator">:</span> <span class="token boolean">false</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
+   <span class="token comment">// 人脸加载完成进行贴图</span>
+   <span class="token keyword">if</span> <span class="token punctuation">(</span>faces<span class="token punctuation">.</span>length <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+     <span class="token keyword">const</span> keypoints <span class="token operator">=</span> faces<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token operator">?.</span>keypoints
+     <span class="token comment">// 去除name属性，去除键名，返回人脸xyz数组</span>
+     <span class="token keyword">const</span> facePosition <span class="token operator">=</span> keypoints
+       <span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">faces</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+         <span class="token keyword">const</span> <span class="token punctuation">{</span> name<span class="token punctuation">,</span> <span class="token operator">...</span>rest <span class="token punctuation">}</span> <span class="token operator">=</span> faces
+         <span class="token keyword">return</span> rest
+       <span class="token punctuation">}</span><span class="token punctuation">)</span>
+       <span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter"><span class="token literal-property property">faces</span><span class="token operator">:</span> <span class="token punctuation">{</span> <span class="token punctuation">[</span>s<span class="token operator">:</span> string<span class="token punctuation">]</span><span class="token operator">:</span> unknown <span class="token punctuation">}</span> <span class="token operator">|</span> ArrayLike<span class="token operator">&lt;</span>unknown<span class="token operator">></span></span><span class="token punctuation">)</span> <span class="token operator">=></span> Object<span class="token punctuation">.</span><span class="token function">values</span><span class="token punctuation">(</span>faces<span class="token punctuation">)</span><span class="token punctuation">)</span>
+     <span class="token keyword">if</span> <span class="token punctuation">(</span>facePosition<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+       <span class="token comment">// 更新人脸位置</span>
+       <span class="token function">updateGeometry</span><span class="token punctuation">(</span>facePosition<span class="token punctuation">)</span>
+     <span class="token punctuation">}</span>
+   <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+     <span class="token comment">// 未检测人脸贴图消失</span>
+     <span class="token function">updateGeometry</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+   <span class="token punctuation">}</span>
+ <span class="token punctuation">}</span>
+ <span class="token comment">// 创建3d场景并初始化</span>
+   <span class="token keyword">const</span> scene <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Scene</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+ <span class="token comment">//添加一些光照</span>
+ scene<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">AmbientLight</span><span class="token punctuation">(</span><span class="token number">0xcccccc</span><span class="token punctuation">,</span> <span class="token number">0.4</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+ <span class="token keyword">const</span> camera <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">OrthographicCamera</span><span class="token punctuation">(</span>
+   windowWidth <span class="token operator">/</span> <span class="token operator">-</span><span class="token number">2</span><span class="token punctuation">,</span>
+   windowWidth <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">,</span>
+   windowHeight <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">,</span>
+   windowHeight <span class="token operator">/</span> <span class="token operator">-</span><span class="token number">2</span><span class="token punctuation">,</span>
+   <span class="token number">100</span><span class="token punctuation">,</span>
+   <span class="token number">1000</span>
+ <span class="token punctuation">)</span>
+ camera<span class="token punctuation">.</span>position<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">1000</span><span class="token punctuation">)</span>
+ camera<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">PointLight</span><span class="token punctuation">(</span><span class="token number">0xffffff</span><span class="token punctuation">,</span> <span class="token number">0.8</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+ camera<span class="token punctuation">.</span>position<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0.15</span><span class="token punctuation">)</span>
+ scene<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>camera<span class="token punctuation">)</span>
+ <span class="token keyword">const</span> renderer <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">WebGLRenderer</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+   <span class="token literal-property property">canvas</span><span class="token operator">:</span> canvas<span class="token punctuation">,</span>
+   <span class="token literal-property property">antialias</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+   <span class="token literal-property property">alpha</span><span class="token operator">:</span> <span class="token boolean">true</span>
+ <span class="token punctuation">}</span><span class="token punctuation">)</span>
+ renderer<span class="token punctuation">.</span><span class="token function">setPixelRatio</span><span class="token punctuation">(</span>window<span class="token punctuation">.</span>devicePixelRatio<span class="token punctuation">)</span>
+ renderer<span class="token punctuation">.</span><span class="token function">setSize</span><span class="token punctuation">(</span>window<span class="token punctuation">.</span>innerWidth<span class="token punctuation">,</span> window<span class="token punctuation">.</span>innerHeight<span class="token punctuation">)</span>
+  <span class="token comment">//添加视频纹理，并将摄像头画面渲染</span>
+ <span class="token keyword">let</span> videoTexture
+ <span class="token keyword">if</span> <span class="token punctuation">(</span>backgroundCutConfig<span class="token punctuation">.</span>isCut<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+   videoTexture <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Texture</span><span class="token punctuation">(</span>canvas2D<span class="token punctuation">)</span>
+ <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+   videoTexture <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">VideoTexture</span><span class="token punctuation">(</span>videoRef<span class="token punctuation">.</span>value<span class="token punctuation">)</span>
+ <span class="token punctuation">}</span>
+
+ videoTexture<span class="token punctuation">.</span>repeat<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>
+ videoTexture<span class="token punctuation">.</span>minFilter <span class="token operator">=</span> LinearFilter
+ videoTexture<span class="token punctuation">.</span>magFilter <span class="token operator">=</span> LinearFilter
+ <span class="token comment">// three.js  颜色值rgba,否则视频发白</span>
+ videoTexture<span class="token punctuation">.</span>colorSpace <span class="token operator">=</span> SRGBColorSpace
+ <span class="token comment">//</span>
+ <span class="token keyword">const</span> canvasWidth <span class="token operator">=</span> canvas<span class="token punctuation">.</span>clientWidth
+ <span class="token keyword">const</span> canvasHeight <span class="token operator">=</span> canvas<span class="token punctuation">.</span>clientHeight
+
+ <span class="token comment">// 计算宽高比例</span>
+ <span class="token keyword">const</span> aspectRatio <span class="token operator">=</span> canvasWidth <span class="token operator">/</span> canvasHeight
+ <span class="token comment">//</span>
+ <span class="token comment">// 创建材质大小和canvas大小一致</span>
+ <span class="token keyword">let</span> videoMaterial<span class="token punctuation">,</span> videoCube
+ video<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">'loadeddata'</span><span class="token punctuation">,</span> <span class="token keyword">async</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+   <span class="token comment">// const videoWidth = video.videoWidth</span>
+   <span class="token comment">// const videoHeight = video.videoHeight</span>
+   <span class="token comment">// const videoAspectRatio = videoWidth / videoHeight</span>
+   <span class="token keyword">const</span> videoGeometry <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">PlaneGeometry</span><span class="token punctuation">(</span>canvasWidth<span class="token punctuation">,</span> canvasWidth <span class="token operator">/</span> aspectRatio<span class="token punctuation">)</span>
+   videoMaterial <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MeshBasicMaterial</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+     <span class="token literal-property property">map</span><span class="token operator">:</span> videoTexture
+   <span class="token punctuation">}</span><span class="token punctuation">)</span>
+   videoCube <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Mesh</span><span class="token punctuation">(</span>videoGeometry<span class="token punctuation">,</span> videoMaterial<span class="token punctuation">)</span>
+   videoCube<span class="token punctuation">.</span>position<span class="token punctuation">.</span><span class="token function">set</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">800</span><span class="token punctuation">)</span>
+   scene<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>videoCube<span class="token punctuation">)</span>
+   camera<span class="token punctuation">.</span><span class="token function">lookAt</span><span class="token punctuation">(</span>videoCube<span class="token punctuation">.</span>position<span class="token punctuation">)</span>
+ <span class="token punctuation">}</span><span class="token punctuation">)</span>
+   <span class="token comment">//创建geometry，将468个人脸特征点按照一定的顺序(TRIANGULATION)组成三角网格，并加载UV_COORDS</span>
+ <span class="token keyword">const</span> geometry <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">BufferGeometry</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+ <span class="token comment">// 设置连接顺序</span>
+ geometry<span class="token punctuation">.</span><span class="token function">setIndex</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">Uint16BufferAttribute</span><span class="token punctuation">(</span><span class="token constant">TRIANGULATION</span><span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+ <span class="token comment">//加载uv</span>
+ <span class="token keyword">const</span> uvAttribute <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Float32BufferAttribute</span><span class="token punctuation">(</span>
+   <span class="token comment">// uv中v是反的需要转换，如果不转换下巴在头上</span>
+   uvCoords<span class="token punctuation">.</span><span class="token function">flat</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter">item<span class="token punctuation">,</span> index</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">(</span><span class="token punctuation">(</span>index <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token operator">%</span> <span class="token number">2</span> <span class="token operator">?</span> item <span class="token operator">:</span> <span class="token number">1</span> <span class="token operator">-</span> item<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+   <span class="token number">2</span>
+ <span class="token punctuation">)</span>
+  <span class="token comment">// 创建几何体对象并将顶点和 UV 属性设置给它</span>
+ geometry<span class="token punctuation">.</span><span class="token function">setAttribute</span><span class="token punctuation">(</span><span class="token string">'uv'</span><span class="token punctuation">,</span> uvAttribute<span class="token punctuation">)</span>
+ <span class="token comment">// 创建material  加载贴图</span>
+ <span class="token keyword">const</span> textureLoader <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">TextureLoader</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+ <span class="token keyword">let</span> <span class="token literal-property property">faceMaterial</span><span class="token operator">:</span> MeshBasicMaterial
+ textureLoader<span class="token punctuation">.</span><span class="token function">load</span><span class="token punctuation">(</span>faceModelConfig<span class="token punctuation">.</span>modelUrl<span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token parameter">texture</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+   texture<span class="token punctuation">.</span>colorSpace <span class="token operator">=</span> SRGBColorSpace
+   texture<span class="token punctuation">.</span>anisotropy <span class="token operator">=</span> <span class="token number">16</span>
+   <span class="token comment">// 创建材质</span>
+   faceMaterial <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">MeshBasicMaterial</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+     <span class="token literal-property property">map</span><span class="token operator">:</span> texture<span class="token punctuation">,</span>
+     <span class="token literal-property property">side</span><span class="token operator">:</span> DoubleSide<span class="token punctuation">,</span>
+     <span class="token literal-property property">transparent</span><span class="token operator">:</span> <span class="token boolean">true</span>
+   <span class="token punctuation">}</span><span class="token punctuation">)</span>
+   faceMaterial<span class="token punctuation">.</span>needsUpdate <span class="token operator">=</span> <span class="token boolean">true</span>
+   <span class="token keyword">const</span> mesh <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Mesh</span><span class="token punctuation">(</span>geometry<span class="token punctuation">,</span> faceMaterial<span class="token punctuation">)</span>
+   scene<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>mesh<span class="token punctuation">)</span>
+ <span class="token punctuation">}</span><span class="token punctuation">)</span>
+   <span class="token comment">//从人脸检测模型获取的人脸网格坐标转换为模型位置</span>
+ <span class="token keyword">const</span> resolveMesh <span class="token operator">=</span> <span class="token punctuation">(</span>faceMesh<span class="token punctuation">,</span> videoWidth<span class="token punctuation">,</span> videoHeight<span class="token punctuation">)</span><span class="token operator">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+   <span class="token keyword">const</span> canvasWidth <span class="token operator">=</span> windowWidth
+   <span class="token keyword">const</span> canvasHeight <span class="token operator">=</span> windowHeight
+
+   <span class="token keyword">const</span> scaleX <span class="token operator">=</span> canvasWidth <span class="token operator">/</span> video<span class="token punctuation">.</span>videoWidth
+   <span class="token keyword">const</span> scaleY <span class="token operator">=</span> canvasHeight <span class="token operator">/</span> video<span class="token punctuation">.</span>videoHeight
+   <span class="token comment">// 根据人脸位置计算视频中贴图位置</span>
+   <span class="token keyword">return</span> faceMesh
+     <span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token parameter"><span class="token literal-property property">p</span><span class="token operator">:</span> number<span class="token punctuation">[</span><span class="token punctuation">]</span></span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">[</span>
+       <span class="token punctuation">(</span>p<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">-</span> videoWidth <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">)</span> <span class="token operator">*</span> scaleX<span class="token punctuation">,</span>
+       <span class="token punctuation">(</span>videoHeight <span class="token operator">/</span> <span class="token number">2</span> <span class="token operator">-</span> p<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">*</span> scaleY<span class="token punctuation">,</span>
+       <span class="token operator">-</span>p<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span> <span class="token operator">-</span> <span class="token number">500</span>
+     <span class="token punctuation">]</span><span class="token punctuation">)</span>
+     <span class="token punctuation">.</span><span class="token function">flat</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+ <span class="token punctuation">}</span>
+  <span class="token comment">// updateGeometry方法用于更新Three.js场景中的几何体（geometry），以便根据检测到的人脸关键点的位置进行渲染。</span>
+ <span class="token keyword">const</span> updateGeometry <span class="token operator">=</span> <span class="token punctuation">(</span>prediction<span class="token punctuation">)</span><span class="token operator">:</span> <span class="token parameter"><span class="token keyword">void</span></span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+   <span class="token keyword">const</span> positionBuffer <span class="token operator">=</span> <span class="token function">resolveMesh</span><span class="token punctuation">(</span>prediction<span class="token punctuation">,</span> video<span class="token punctuation">.</span>videoWidth<span class="token punctuation">,</span> video<span class="token punctuation">.</span>videoHeight<span class="token punctuation">)</span>
+   videoTexture<span class="token punctuation">.</span>needsUpdate <span class="token operator">=</span> <span class="token boolean">true</span>
+   geometry<span class="token punctuation">.</span><span class="token function">setAttribute</span><span class="token punctuation">(</span><span class="token string">'position'</span><span class="token punctuation">,</span> <span class="token keyword">new</span> <span class="token class-name">Float32BufferAttribute</span><span class="token punctuation">(</span>positionBuffer<span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+   geometry<span class="token punctuation">.</span><span class="token function">computeVertexNormals</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+   geometry<span class="token punctuation">.</span>attributes<span class="token punctuation">.</span>uv<span class="token punctuation">.</span>needsUpdate <span class="token operator">=</span> <span class="token boolean">true</span>
+   geometry<span class="token punctuation">.</span>attributes<span class="token punctuation">.</span>position<span class="token punctuation">.</span>needsUpdate <span class="token operator">=</span> <span class="token boolean">true</span>
+ <span class="token punctuation">}</span>
+  <span class="token comment">// 控制场景渲染</span>
+ <span class="token keyword">const</span> render <span class="token operator">=</span> <span class="token keyword">async</span> <span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">:</span> Promise<span class="token operator">&lt;</span><span class="token keyword">void</span><span class="token operator">></span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+   <span class="token comment">// 背景替换</span>
+   <span class="token keyword">if</span> <span class="token punctuation">(</span>backgroundCutConfig<span class="token punctuation">.</span>isCut<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+     <span class="token keyword">await</span> <span class="token function">backgroundReplace</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+   <span class="token punctuation">}</span>
+   <span class="token comment">// 人脸贴图</span>
+   <span class="token keyword">if</span> <span class="token punctuation">(</span>faceModelConfig<span class="token punctuation">.</span>isFaceModel<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+     <span class="token keyword">await</span> <span class="token function">detectFaces</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+   <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+     <span class="token function">updateGeometry</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+     videoTexture<span class="token punctuation">.</span>needsUpdate <span class="token operator">=</span> <span class="token boolean">true</span>
+   <span class="token punctuation">}</span>
+   <span class="token comment">// track(object3D, faces[0])</span>
+   renderer<span class="token punctuation">.</span><span class="token function">render</span><span class="token punctuation">(</span>scene<span class="token punctuation">,</span> camera<span class="token punctuation">)</span>
+   loopRender<span class="token punctuation">.</span>value <span class="token operator">=</span> <span class="token function">requestAnimationFrame</span><span class="token punctuation">(</span>render<span class="token punctuation">)</span>
+ <span class="token punctuation">}</span>
+ video<span class="token punctuation">.</span><span class="token function">addEventListener</span><span class="token punctuation">(</span><span class="token string">'loadeddata'</span><span class="token punctuation">,</span> <span class="token keyword">async</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+   video<span class="token punctuation">.</span>style<span class="token punctuation">.</span>display <span class="token operator">=</span> <span class="token string">'none'</span>
+   <span class="token function">render</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+ <span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div><h2 id="electron-窗口通信" tabindex="-1"><a class="header-anchor" href="#electron-窗口通信" aria-hidden="true">#</a> electron 窗口通信</h2>
+<p>原理主要是浏览器跨窗口通信</p>
+<ul>
+<li>
+<p>StorageEvent</p>
+</li>
+<li>
+<p>Broadcast Channel</p>
+</li>
+<li>
+<p>SharedWorker</p>
+</li>
+<li>
+<p>MessageChannel</p>
+<p>我用的vueuse封装的(Broadcast Channel)[Broadcast Channel]自行查看</p>
+</li>
+</ul>
+<h2 id="打包配置" tabindex="-1"><a class="header-anchor" href="#打包配置" aria-hidden="true">#</a> 打包配置</h2>
+<div class="language-json line-numbers-mode" data-ext="json"><pre v-pre class="language-json"><code><span class="token property">"build"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+  <span class="token property">"appId"</span><span class="token operator">:</span> <span class="token string">"com.example.my-electron-app"</span><span class="token punctuation">,</span>
+  <span class="token property">"win"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+  &lt;!-- 你需要添加一个 win 字段，这是用于配置 Windows 平台的打包选项。在 win 字段中，你需要指定 target 为 nsis，这是一个创建 Windows 安装程序的脚本工具 -->
+    <span class="token property">"target"</span><span class="token operator">:</span> <span class="token string">"nsis"</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  &lt;!-- directories 字段，这是用于配置构建资源的目录 -->
+  <span class="token property">"directories"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+    <span class="token property">"buildResources"</span><span class="token operator">:</span> <span class="token string">"build"</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  &lt;!-- allowToChangeInstallationDirectory 字段启用了用户选择安装路径的功能 -->
+  <span class="token property">"nsis"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
+       <span class="token property">"oneClick"</span><span class="token operator">:</span> <span class="token boolean">false</span><span class="token punctuation">,</span>
+    <span class="token property">"allowToChangeInstallationDirectory"</span><span class="token operator">:</span> <span class="token boolean">true</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+&lt;!-- electron打包上传git releases 自动更新 -->
+ <span class="token property">"publish"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span>
+      <span class="token property">"provider"</span><span class="token operator">:</span> <span class="token string">"github"</span><span class="token punctuation">,</span>
+      <span class="token property">"owner"</span><span class="token operator">:</span> <span class="token string">"xxxxxxxxxx"</span><span class="token punctuation">,</span>
+      <span class="token property">"repo"</span><span class="token operator">:</span> <span class="token string">"electron-camere"</span><span class="token punctuation">,</span>
+      <span class="token property">"releaseType"</span><span class="token operator">:</span> <span class="token string">"release"</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">]</span>
+   windows下添加环境变量GH_TOKEN
+生成地址https<span class="token operator">:</span><span class="token comment">//github.com/settings/tokens，之后添加环境变量</span>
+
+</code></pre><div class="line-numbers" aria-hidden="true"><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div><div class="line-number"></div></div></div></div></template>
+
+
